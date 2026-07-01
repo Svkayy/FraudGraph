@@ -1,0 +1,17 @@
+# Local serving + monitoring stack (Stages 4-5). Runs on your Mac in .venv.
+# Heavy training deps (xgboost, full PyG training) live on Kaggle, not here.
+
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+
+redis==5.0.8
+confluent-kafka==2.5.3
+
+# Inference-only: CPU torch + PyG. Versions kept broad for arm64 wheels.
+torch>=2.2,<2.5
+torch-geometric>=2.5,<2.7
+
+numpy>=1.26,<2.1
+prometheus-client==0.21.0
+requests==2.32.3

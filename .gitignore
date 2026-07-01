@@ -1,0 +1,25 @@
+# Data & model artifacts (downloaded from Kaggle, never committed)
+data/
+artifacts/
+mlruns/
+*.pt
+*.pkl
+*.csv
+*.zip
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# Env / secrets
+.env
+kaggle.json
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/
