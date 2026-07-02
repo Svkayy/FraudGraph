@@ -111,14 +111,20 @@ class HybridGatedGNN(_BaseFraudGNN):
         return self.head(self.encode(x_tx, edge_index_dict, node_idx)["transaction"]).squeeze(-1)
 
 
-def focal_bce_with_logits(logits, targets, alpha: float = 0.25, gamma: float = 2.0,
+def focal_bce_with_logits(logits, targets, alpha: float = 0.9, gamma: float = 2.0,
                           pos_weight: float | None = None):
-    """Focal loss (Lin et al. 2017) with class-weighting on top.
+    """Focal loss (Lin et al. 2017).
 
     - `gamma` downweights easy examples so training focuses on the hard
       fraud/legit boundary rather than the many-easy-negatives majority.
-    - `alpha` gives extra weight to the positive class.
-    - Optional `pos_weight` composes with alpha for extreme imbalance.
+    - `alpha` is the static positive-class weight: alpha on positives,
+      (1 - alpha) on negatives. alpha=0.9 gives a 9:1 positive weighting,
+      appropriate for the ~3.5% fraud rate here.
+    - `pos_weight` exists for experimentation but should NOT be combined with
+      an alpha != 0.5 — the two both correct class imbalance and stacking them
+      double-counts the correction (e.g. alpha=0.25 with pos_weight=28 partially
+      cancel into an opaque ~9:1). Pick one mechanism; the default here is
+      alpha-only.
 
     Better fit than plain weighted-BCE for a 3.5% positive class because it
     directly addresses the aggressive-gradient spikes that cause the noisy
