@@ -16,7 +16,7 @@ of that structure. A graph model does.
 
 ![FraudGraph monitoring dashboard](assets/dashboard.png)
 
-[demo video](assets/demo.mp4)
+https://github.com/user-attachments/assets/23c11b13-785c-46ea-a48b-6a0b4c595f65
 
 What the recording shows, in order: the dashboard under steady traffic (decisions
 splitting into approve/flag/decline, latency holding under 5ms server-side), then a
