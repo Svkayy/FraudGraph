@@ -1,9 +1,9 @@
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Response
 from pydantic import BaseModel
 
-from . import config
+from . import config, metrics
 from .inference import FraudScorer
 from .redis_store import RedisStore
 
@@ -25,8 +25,10 @@ class Transaction(BaseModel):
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    state["scorer"] = FraudScorer()
+    scorer = FraudScorer()
+    state["scorer"] = scorer
     state["redis"] = RedisStore()
+    metrics.configure(scorer.explainer.amt_mean, scorer.explainer.amt_std)
     yield
     state.clear()
 
@@ -43,12 +45,20 @@ def score_transaction(payload: dict) -> dict:
     result = scorer.score(payload, velocity, feature_vector=payload.get("feature_vector"))
     if payload.get("TransactionID") is not None:
         store.push_neighbor(card1, payload["TransactionID"])
+    metrics.observe(result["fraud_score"], result["decision"],
+                    result["latency_ms"], float(payload["TransactionAmt"]))
     return result
 
 
 @app.get("/health")
 def health():
     return {"status": "ok", "redis": state["redis"].ping() if "redis" in state else False}
+
+
+@app.get("/metrics")
+def prometheus_metrics():
+    body, content_type = metrics.render()
+    return Response(content=body, media_type=content_type)
 
 
 @app.post("/score")

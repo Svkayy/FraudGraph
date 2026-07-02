@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  # FastAPI /score endpoint (runs on the host, outside Docker)
+  - job_name: fraudgraph-api
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:8000"]
+
+  # Kafka consumer metrics (only up when the consumer process is running)
+  - job_name: fraudgraph-consumer
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["host.docker.internal:8001"]
